@@ -18,58 +18,98 @@ export class MyElement extends LitElement {
     return css`
       :host {
         display: block;
-        border: solid 1px gray;
         padding: 16px;
-        max-width: 800px;
+        width: 100%;
       }
     `;
   }
 
   static get properties() {
     return {
-      /**
-       * The name to say "Hello" to.
-       * @type {string}
-       */
-      name: {type: String},
-
-      /**
-       * The number of times the button has been clicked.
-       * @type {number}
-       */
-      count: {type: Number},
+      data: Object
     };
   }
 
-  constructor() {
+    constructor() {
     super();
-    this.name = 'World';
-    this.count = 0;
+    this.fetchData();
+  }
+
+  fetchData() {
+    fetch('https://rickandmortyapi.com/api/character')
+    .then(respuesta => {
+      return respuesta.json();
+    })
+    .then(data => {
+      this.data = data.results;
+      console.log(this.data)
+    })
+    .catch(error => {
+      console.log(error)
+    })
   }
 
   render() {
     return html`
-      <h1>${this.sayHello(this.name)}!</h1>
-      <button @click=${this._onClick} part="button">
-        Click Count: ${this.count}
-      </button>
+     <style>
+      h1 {
+        font-size: 2rem;
+        font-weight: normal;
+        text-transform: uppercase;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      span {
+        color: #24aa91;
+      }
+      h2 {
+        color: #83c9bf;
+        text-align: center;
+      }
+      section {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+      }
+      div {
+        padding: 10px;
+        display: inline-block;
+        width: 80%;
+        background-color: #FFFFFF;
+        margin: 4% 2%;
+      }
+      h3 {
+        text-align: center;
+      }
+      img {
+        width: 80%;
+        height: auto;
+        display:block;
+        margin:auto;
+      }
+      p {
+        text-align: center;
+        font-size: 1rem;
+      }
+      
+      </style>
+    <h1>The <span>Rick and Morty </span> API</h1>
+    <h2>LitElement</h2>
+      <section>
+          ${this.data.map(dato => html`
+          <div>
+            <h3>${dato.name}</h3>
+            <img src=${dato.image}>
+            <p>${dato.species} ${dato.status}</p>
+          </div>`)}
+      </section>
       <slot></slot>
     `;
   }
 
-  _onClick() {
-    this.count++;
-    this.dispatchEvent(new CustomEvent('count-changed'));
-  }
 
-  /**
-   * Formats a greeting
-   * @param name {string} The name to say "Hello" to
-   * @returns {string} A greeting directed at `name`
-   */
-  sayHello(name) {
-    return `Hello, ${name}`;
-  }
+  
+ 
 }
 
 window.customElements.define('my-element', MyElement);
